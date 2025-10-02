@@ -55,7 +55,7 @@ class _CreateEventState extends State<CreateEvent> {
                 SizedBox(height: 16.h,),
 
                 CustomTabBar(
-                    categories: CategoryModel.categoriesWithOutAll,
+                    categories: CategoryModel.getCategories(context),
                     selectedBgColor: ColorsManager.blue,
                     unSelectedBgColor: Colors.transparent,
                     selectedForegroundColor: ColorsManager.white,

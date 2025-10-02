@@ -77,7 +77,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               SizedBox(height: 8.h),
               CustomTabBar(
-                categories: CategoryModel.categoriesWithAll,
+                categories: CategoryModel.getCategoriesWithAll(context),
                 selectedBgColor: ColorsManager.white,
                 unSelectedBgColor: Colors.transparent,
                 selectedForegroundColor: ColorsManager.blue,
@@ -93,7 +93,7 @@ class _HomeTabState extends State<HomeTab> {
               return EventItem(
 
                 event: EventModel(
-                  category: CategoryModel.categoriesWithAll[3],
+                  category: CategoryModel.getCategoriesWithAll(context)[3],
                   title: "title",
                   description: "Meeting for Updating The Development Method ",
                   dateTime: DateTime.now(),

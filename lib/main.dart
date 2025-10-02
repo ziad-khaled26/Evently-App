@@ -1,12 +1,31 @@
 import 'package:evently_app/config/theme/theme_manager.dart';
+import 'package:evently_app/core/prefs_manager.dart';
 import 'package:evently_app/core/routes_manager.dart';
 import 'package:evently_app/l10n/app_localization.dart';
+import 'package:evently_app/providers/language_provider.dart';
+import 'package:evently_app/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await PrefsManager.init();
+
+
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+      ],
+      child:  const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,6 +33,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider=Provider.of<ThemeProvider>(context);
+    var languageProvider=Provider.of<LanguageProvider>(context);
     return ScreenUtilInit(
       designSize: Size(393, 841),
       minTextAdapt: true,
@@ -28,19 +49,14 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
 
-        supportedLocales: [
-          Locale("en"),
-          Locale("ar"),
-        ],
-        locale: Locale("ar"),
-
-
+        supportedLocales: [Locale("en"), Locale("ar")],
+        locale:languageProvider.currentLanguage,
 
         onGenerateRoute: RoutesManager.getRoute,
         initialRoute: RoutesManager.mainLayout,
         theme: ThemeManager.light,
         darkTheme: ThemeManager.dark,
-        themeMode: ThemeMode.dark,
+        themeMode: themeProvider.currentTheme
       ),
     );
   }

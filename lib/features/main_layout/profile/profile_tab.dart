@@ -1,18 +1,25 @@
+import 'package:evently_app/core/prefs_manager.dart';
 import 'package:evently_app/core/resources/colors_manager.dart';
 import 'package:evently_app/features/main_layout/profile/build_drop_down_menu_item.dart';
 import 'package:evently_app/l10n/app_localization.dart';
+import 'package:evently_app/providers/language_provider.dart';
+import 'package:evently_app/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/resources/assets_manager.dart';
 
 class ProfileTab extends StatelessWidget {
    ProfileTab({super.key});
    AppLocalizations? appLocalizations;
+    String currentTheme="Light";
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider=Provider.of<ThemeProvider>(context);
+    var languageProvider=Provider.of<LanguageProvider>(context);
     appLocalizations=AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,10 +66,24 @@ class ProfileTab extends StatelessWidget {
           ),
         ),
         SizedBox(height: 24.h),
-       BuildDropDownMenuItem(label: appLocalizations!.language, menuItems: ["English","Arabic"],selectedItem: "English",),
+       BuildDropDownMenuItem(
+         label: appLocalizations!.language,
+         menuItems: ["English","عربى"],
+         selectedItem: languageProvider.isEnglishEnabled?"English":"عربى",
+         onChanged: (newLanguage){
+           languageProvider.changeAppLanguage(newLanguage=="English"? Locale("en"):Locale("ar"));
+         },
+       ),
 
         SizedBox(height: 16.h),
-       BuildDropDownMenuItem(label: appLocalizations!.theme, menuItems: [appLocalizations!.light,appLocalizations!.dark],selectedItem: "Light",),
+       BuildDropDownMenuItem(
+         label: appLocalizations!.theme,
+         menuItems: [appLocalizations!.light,appLocalizations!.dark],
+         selectedItem: themeProvider.isDarkEnabled?appLocalizations!.dark:appLocalizations!.light,
+         onChanged: (newTheme){
+           themeProvider.changeAppTheme(newTheme==appLocalizations!.light? ThemeMode.light:ThemeMode.dark!);
+         },
+       ),
         Padding(
           padding:  REdgeInsets.only(right: 8,left :8,top: 200),
           child: ElevatedButton(onPressed: (){},
