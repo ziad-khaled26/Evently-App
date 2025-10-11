@@ -101,7 +101,7 @@ class ThemeManager {
         color: ColorsManager.black,
       ),
       headlineSmall: GoogleFonts.inter(
-        fontSize: 14.sp,
+        fontSize: 16.sp,
         fontWeight: FontWeight.w400,
         color: ColorsManager.white,
       ),
@@ -241,7 +241,7 @@ class ThemeManager {
         color: ColorsManager.ofWhite,
       ),
       headlineSmall: GoogleFonts.inter(
-        fontSize: 14.sp,
+        fontSize: 16.sp,
         fontWeight: FontWeight.w400,
         color: ColorsManager.ofWhite,
       ),

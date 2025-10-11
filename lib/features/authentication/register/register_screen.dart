@@ -1,9 +1,15 @@
 import 'package:evently_app/core/resources/assets_manager.dart';
+import 'package:evently_app/core/resources/constants/constant_manager.dart';
+import 'package:evently_app/core/utils/ui_utils.dart';
 import 'package:evently_app/core/utils/utils.dart';
 import 'package:evently_app/core/widgets/custom_elevated_button.dart';
 import 'package:evently_app/core/widgets/custom_text_button.dart';
 import 'package:evently_app/core/widgets/custom_text_form_field.dart';
+import 'package:evently_app/firebase/firebase_service.dart';
 import 'package:evently_app/l10n/app_localization.dart';
+import 'package:evently_app/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,23 +29,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   late TextEditingController passwordController;
   late TextEditingController rePasswordController;
 
-  GlobalKey<FormState> formKey=GlobalKey<FormState>();
-
-  void _createAccount(){
-    if(formKey.currentState!.validate()){
-      Navigator.pushReplacementNamed(context, RoutesManager.login);
-    }
-
-  }
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    nameController=TextEditingController();
-    emailController=TextEditingController();
-    passwordController=TextEditingController();
-    rePasswordController=TextEditingController();
-
+    nameController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    rePasswordController = TextEditingController();
   }
 
   @override
@@ -53,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var appLocalizations=AppLocalizations.of(context);
+    var appLocalizations = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(appLocalizations!.register)),
       body: SingleChildScrollView(
@@ -64,19 +62,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Image.asset(ImageAssets.eventlyLogo, width: 136.w, height: 186.h),
+                Image.asset(
+                  ImageAssets.eventlyLogo,
+                  width: 136.w,
+                  height: 186.h,
+                ),
                 SizedBox(height: 24.h),
                 CustomTextFormField(
                   labelText: appLocalizations.name,
                   prefixIcon: Icons.person,
                   keyboardType: TextInputType.name,
                   controller: nameController,
-                  validator: (input){
-                    if(input==null || input.trim().isEmpty){
+                  validator: (input) {
+                    if (input == null || input.trim().isEmpty) {
                       return "Name is Required";
                     }
-                    if(input.length<5 ){
-                      return  "Name should be at least 5ch";
+                    if (input.length < 3) {
+                      return "Name should be at least 3ch";
                     }
                     return null;
                   },
@@ -88,11 +90,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   prefixIcon: Icons.mail,
                   keyboardType: TextInputType.emailAddress,
                   controller: emailController,
-                  validator: (input){
-                    if(input==null || input.trim().isEmpty){
+                  validator: (input) {
+                    if (input == null || input.trim().isEmpty) {
                       return "email is required";
                     }
-                    if(!ValidationUtils.isValidEmail(input)){
+                    if (!ValidationUtils.isValidEmail(input)) {
                       return "Email bad format";
                     }
                     return null;
@@ -114,11 +116,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   keyboardType: TextInputType.visiblePassword,
                   controller: passwordController,
-                  validator: (input){
-                    if(input==null || input.trim().isEmpty){
+                  validator: (input) {
+                    if (input == null || input.trim().isEmpty) {
                       return "Password is required";
                     }
-                    if(input.length <6){
+                    if (input.length < 6) {
                       return "Password should be at least 6 chars";
                     }
                     return null;
@@ -143,11 +145,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   keyboardType: TextInputType.visiblePassword,
                   controller: rePasswordController,
-                  validator: (input){
-                    if(input == null || input.trim().isEmpty){
+                  validator: (input) {
+                    if (input == null || input.trim().isEmpty) {
                       return "plz, confirm password";
                     }
-                    if(input != passwordController.text){
+                    if (input != passwordController.text) {
                       return "password doesn't match";
                     }
                     return null;
@@ -155,8 +157,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 16.h),
 
-                CustomElevatedButton(text: appLocalizations.create_account,
-                    onPress: _createAccount),
+                CustomElevatedButton(
+                  text: appLocalizations.create_account,
+                  onPress: _createAccount,
+                ),
                 SizedBox(height: 16.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -182,5 +186,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  void _createAccount() async {
+    try {
+      if (formKey.currentState?.validate() == false) return;
+      UIUtils.showLoadingDialog(context);
+      UserCredential credential = await FirebaseService.register(
+        emailController.text,
+        passwordController.text,
+      );
+      await FirebaseService.addUserToFirestore(
+        UserModel(
+          id: credential.user!.uid,
+          name: nameController.text,
+          email: emailController.text,
+        ),
+      );
+
+      UIUtils.hideLoadingDialog(context);
+      Navigator.pushReplacementNamed(context, RoutesManager.login);
+    } on FirebaseAuthException catch (exception) {
+      if (exception.code == FirebaseConstants.weakPasswordCode) {
+        UIUtils.hideLoadingDialog(context);
+        UIUtils.showMessage(context, FirebaseConstants.weakPasswordMessage);
+      } else if (exception.code == FirebaseConstants.emailInUseCode) {
+        UIUtils.hideLoadingDialog(context);
+        UIUtils.showMessage(context, FirebaseConstants.emailInUseMessage);
+      }
+    } catch (exception) {
+      UIUtils.hideLoadingDialog(context);
+      UIUtils.showMessage(context, FirebaseConstants.failedToRegisterMessage);
+    }
   }
 }

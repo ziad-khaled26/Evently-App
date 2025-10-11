@@ -1,9 +1,12 @@
 import 'package:evently_app/core/prefs_manager.dart';
 import 'package:evently_app/core/resources/colors_manager.dart';
+import 'package:evently_app/core/routes_manager.dart';
 import 'package:evently_app/features/main_layout/profile/build_drop_down_menu_item.dart';
 import 'package:evently_app/l10n/app_localization.dart';
+import 'package:evently_app/models/user_model.dart';
 import 'package:evently_app/providers/language_provider.dart';
 import 'package:evently_app/providers/theme_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,9 +14,16 @@ import 'package:provider/provider.dart';
 
 import '../../../core/resources/assets_manager.dart';
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
    ProfileTab({super.key});
+
+  @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
    AppLocalizations? appLocalizations;
+
     String currentTheme="Light";
 
   @override
@@ -43,7 +53,7 @@ class ProfileTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Ziad Khaled",
+                      UserModel.currentUser!.name,
                       style: GoogleFonts.inter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
@@ -52,7 +62,7 @@ class ProfileTab extends StatelessWidget {
                     ),
                     SizedBox(height: 10.h),
                     Text(
-                      "zoz@gmail.com",
+                      UserModel.currentUser!.email,
                       style: GoogleFonts.inter(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
@@ -86,7 +96,7 @@ class ProfileTab extends StatelessWidget {
        ),
         Padding(
           padding:  REdgeInsets.only(right: 8,left :8,top: 200),
-          child: ElevatedButton(onPressed: (){},
+          child: ElevatedButton(onPressed:_logOut,
 
               style: ElevatedButton.styleFrom(
                 backgroundColor: ColorsManager.red,
@@ -111,5 +121,10 @@ class ProfileTab extends StatelessWidget {
         )
       ],
     );
+  }
+
+  void _logOut() async{
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacementNamed(context, RoutesManager.login);
   }
 }

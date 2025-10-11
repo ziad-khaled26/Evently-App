@@ -1,4 +1,4 @@
-import 'package:evently_app/core/resources/constants/cache_constant.dart';
+import 'package:evently_app/core/resources/constants/constant_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

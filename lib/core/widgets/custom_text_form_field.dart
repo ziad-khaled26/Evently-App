@@ -34,7 +34,7 @@ class CustomTextFormField extends StatelessWidget {
       validator: validator,
       obscureText: secureText,
       keyboardType: keyboardType,
-      style: TextStyle(color: ColorsManager.ofWhite),
+      style: TextStyle(color: Theme.of(context).canvasColor),
       decoration: InputDecoration(
         labelText:labelText,
         prefixIcon:prefixIcon==null? null: Icon(prefixIcon),

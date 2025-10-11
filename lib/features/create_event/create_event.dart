@@ -1,3 +1,4 @@
+import 'package:evently_app/core/extension/date_time_ex.dart';
 import 'package:evently_app/core/resources/assets_manager.dart';
 import 'package:evently_app/core/resources/colors_manager.dart';
 import 'package:evently_app/core/widgets/custom_elevated_button.dart';
@@ -8,6 +9,7 @@ import 'package:evently_app/l10n/app_localization.dart';
 import 'package:evently_app/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 
 class CreateEvent extends StatefulWidget {
   const CreateEvent({super.key});
@@ -19,6 +21,8 @@ class CreateEvent extends StatefulWidget {
 class _CreateEventState extends State<CreateEvent> {
   late TextEditingController eventController;
   late TextEditingController titleController;
+  DateTime selectedDate=DateTime.now();
+  TimeOfDay selectedTime=TimeOfDay.now();
 
   GlobalKey<FormState> formKey=GlobalKey<FormState>();
 
@@ -102,13 +106,14 @@ class _CreateEventState extends State<CreateEvent> {
                     Icon(Icons.date_range_outlined,color: Theme.of(context).canvasColor,),
                     SizedBox(width: 10.w,),
                     Text(
-                      appLocalizations.event_date,
+                      selectedDate.toFormattedDate,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     Spacer(),
-                   CustomTextButton(text: appLocalizations.choose_date, onPress: (){
-                     showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime.now().add(Duration(days: 365)));
-                   }),
+                   CustomTextButton(
+                     text: appLocalizations.choose_date,
+                     onPress: _selectEventDate,
+                   ),
                   ],
                 ),
                 SizedBox(height: 16.h,),
@@ -117,13 +122,14 @@ class _CreateEventState extends State<CreateEvent> {
                     Icon(Icons.access_time,color: Theme.of(context).canvasColor),
                     SizedBox(width: 10.w,),
                     Text(
-                      appLocalizations.event_time,
+                     selectedDate.toFormattedTime,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     Spacer(),
-                    CustomTextButton(text: appLocalizations.choose_time, onPress: (){
-                      showTimePicker(context: context, initialTime: TimeOfDay.now());
-                    }),
+                    CustomTextButton(
+                      text: appLocalizations.choose_time,
+                      onPress: _selectEventTime,
+                    ),
                   ],
                 ),
                 SizedBox(height:16.h),
@@ -145,5 +151,27 @@ class _CreateEventState extends State<CreateEvent> {
         return;
       }
 
+  }
+  String getFormattedDate(DateTime dateTime){
+    DateFormat pattern=DateFormat("dd/MM/yyyy");
+    return pattern.format(dateTime);
+
+
+  }
+
+  void  _selectEventDate() async{
+    selectedDate=await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime.now().add(Duration(days: 365)))??selectedDate;
+    selectedDate=selectedDate.copyWith(hour: selectedTime.hour,minute: selectedTime.minute);
+    setState(() {
+      
+    });
+  }
+
+  void _selectEventTime() async{
+    selectedTime=await showTimePicker(context: context, initialTime: TimeOfDay.now())??selectedTime;
+    selectedDate=selectedDate.copyWith(hour: selectedTime.hour,minute: selectedTime.minute);
+    setState(() {
+
+    });
   }
 }

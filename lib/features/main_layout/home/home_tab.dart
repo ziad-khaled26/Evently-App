@@ -4,9 +4,12 @@ import 'package:evently_app/core/widgets/custom_tab_item.dart';
 import 'package:evently_app/core/widgets/event_item.dart';
 import 'package:evently_app/models/category_model.dart';
 import 'package:evently_app/models/event_model.dart';
+import 'package:evently_app/models/user_model.dart';
+import 'package:evently_app/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -18,6 +21,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
+    var themeProvider=Provider.of<ThemeProvider>(context);
     return Column(
       children: [
         Container(
@@ -44,7 +48,7 @@ class _HomeTabState extends State<HomeTab> {
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         Text(
-                          "Ziad Khaled",
+                          "${UserModel.currentUser!.name} ✨",
                           style: Theme.of(context).textTheme.headlineLarge,
                         ),
                         Row(
@@ -64,6 +68,7 @@ class _HomeTabState extends State<HomeTab> {
                     Spacer(),
                     Icon(Icons.light_mode_outlined),
                     Card(
+                      color: themeProvider.isDarkEnabled?ColorsManager.ofWhite:ColorsManager.white,
                       child: Padding(
                         padding: REdgeInsets.all(8.0),
                         child: Text(
