@@ -2,6 +2,7 @@ import 'package:evently_app/core/resources/colors_manager.dart';
 import 'package:evently_app/core/widgets/custom_tab_bar.dart';
 import 'package:evently_app/core/widgets/custom_tab_item.dart';
 import 'package:evently_app/core/widgets/event_item.dart';
+import 'package:evently_app/firebase/firebase_service.dart';
 import 'package:evently_app/models/category_model.dart';
 import 'package:evently_app/models/event_model.dart';
 import 'package:evently_app/models/user_model.dart';
@@ -19,16 +20,26 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
+  late CategoryModel selectedCategory=CategoryModel.getCategoriesWithAll(context)[0];
+
+  @override
+  void initState() {
+    super.initState();
+    // getEvents();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var themeProvider=Provider.of<ThemeProvider>(context);
+    var themeProvider = Provider.of<ThemeProvider>(context);
     return Column(
       children: [
         Container(
           width: double.infinity,
           height: 200.h,
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
+            color: Theme
+                .of(context)
+                .primaryColor,
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(24.r)),
           ),
           child: Column(
@@ -45,21 +56,28 @@ class _HomeTabState extends State<HomeTab> {
                       children: [
                         Text(
                           "Welcome Back ✨",
-                          style: Theme.of(context).textTheme.headlineSmall,
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headlineSmall,
                         ),
                         Text(
                           "${UserModel.currentUser!.name} ✨",
-                          style: Theme.of(context).textTheme.headlineLarge,
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headlineLarge,
                         ),
                         Row(
                           children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                            ),
+                            Icon(Icons.location_on_outlined),
                             SizedBox(width: 4.w),
                             Text(
                               "Cairo, Egypt",
-                              style: Theme.of(context).textTheme.headlineMedium,
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .headlineMedium,
                             ),
                           ],
                         ),
@@ -68,12 +86,17 @@ class _HomeTabState extends State<HomeTab> {
                     Spacer(),
                     Icon(Icons.light_mode_outlined),
                     Card(
-                      color: themeProvider.isDarkEnabled?ColorsManager.ofWhite:ColorsManager.white,
+                      color: themeProvider.isDarkEnabled
+                          ? ColorsManager.ofWhite
+                          : ColorsManager.white,
                       child: Padding(
                         padding: REdgeInsets.all(8.0),
                         child: Text(
                           "En",
-                          style: Theme.of(context).textTheme.labelSmall,
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .labelSmall,
                         ),
                       ),
                     ),
@@ -87,32 +110,68 @@ class _HomeTabState extends State<HomeTab> {
                 unSelectedBgColor: Colors.transparent,
                 selectedForegroundColor: ColorsManager.blue,
                 unSelectedForegroundColor: ColorsManager.white,
+                onCategoryItemSelected: (category){
+                  selectedCategory=category;
+                  setState(() {
+
+                  });
+                },
               ),
             ],
           ),
         ),
-        Expanded(
-          child: ListView.separated(
-            padding: REdgeInsets.symmetric(vertical: 16),
-            itemBuilder: (itemContext, index) {
-              return EventItem(
-
-                event: EventModel(
-                  category: CategoryModel.getCategoriesWithAll(context)[3],
-                  title: "title",
-                  description: "Meeting for Updating The Development Method ",
-                  dateTime: DateTime.now(),
-                  timeOfDay: TimeOfDay.now(),
-
-                ),
-              );
-            },
-            separatorBuilder: (separatorContext, index) =>
-                SizedBox(height: 16.h),
-            itemCount: 20,
-          ),
+        // Expanded(
+        //     child: eventsList.isEmpty ? Center(child: CircularProgressIndicator()) :
+        //     ListView.separated(
+        //         itemBuilder:(context,index)=>EventItem(event: eventsList[index]),
+        //         separatorBuilder: (context,index)=>SizedBox(height: 16.h,),
+        //         itemCount: eventsList.length
+        //     )
+        // )
+        // FutureBuilder(
+        //     future: FirebaseService.getEventsFromFireStore(context,selectedCategory),
+        //     builder: (context, snapShot) {
+        //       if (snapShot.connectionState == ConnectionState.waiting) {
+        //         return Center(
+        //           child: CircularProgressIndicator(),
+        //         );
+        //       }
+        //       if (snapShot.hasError) {
+        //         return Center(child: Text(snapShot.error.toString()));
+        //       }
+        //       List<EventModel> events = snapShot.data ?? [];
+        //       return Expanded(child: ListView.separated(
+        //           itemBuilder: (context,index)=>EventItem(event: events[index]),
+        //           separatorBuilder: (context,index)=>SizedBox(height: 16.h,),
+        //           itemCount: events.length));
+        //     }
+        // ),
+        StreamBuilder(
+            stream: FirebaseService.getEventsWithRealTimeUpdates(context,selectedCategory),
+            builder: (context, snapShot) {
+              if (snapShot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapShot.hasError) {
+                return Center(child: Text(snapShot.error.toString()));
+              }
+              List<EventModel> events = snapShot.data ?? [];
+              return Expanded(child: ListView.separated(
+                  itemBuilder: (context,index)=>EventItem(event: events[index]),
+                  separatorBuilder: (context,index)=>SizedBox(height: 16.h,),
+                  itemCount: events.length));
+            }
         ),
       ],
     );
   }
+
+// getEvents() async {
+//   eventsList = await FirebaseService.getEventsFromFireStore(context);
+//   setState(() {
+//
+//   });
+// }
 }

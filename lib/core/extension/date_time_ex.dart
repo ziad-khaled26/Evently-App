@@ -10,6 +10,13 @@ extension DateTimeEx on DateTime{
     DateFormat formatter=DateFormat("jm");
     return formatter.format(this);
   }
+  String get getDay{
+    return day.toString();
+  }
+
+  String get getMonthName{
+    return DateFormat("MMM").format(this);
+  }
 
 
 }

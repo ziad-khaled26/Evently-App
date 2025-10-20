@@ -42,7 +42,8 @@ class FavoriteTab extends StatelessWidget {
                       title: "title",
                       description: "Meeting for Updating The Development Method ",
                       dateTime: DateTime.now(),
-                      timeOfDay: TimeOfDay.now(),
+                      id: "1",
+                      ownerId: "1"
                     ),
                   ),
                   itemCount: 10,

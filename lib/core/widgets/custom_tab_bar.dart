@@ -11,13 +11,15 @@ class CustomTabBar extends StatefulWidget {
     required this.selectedBgColor,
     required this.unSelectedBgColor,
     required this.selectedForegroundColor,
-    required this.unSelectedForegroundColor
+    required this.unSelectedForegroundColor,
+     this.onCategoryItemSelected,
   });
   final List<CategoryModel> categories;
   final Color selectedBgColor;
   final Color unSelectedBgColor;
   final Color selectedForegroundColor;
   final Color unSelectedForegroundColor;
+  final void Function(CategoryModel)? onCategoryItemSelected;
 
   @override
   State<CustomTabBar> createState() => _CustomTabBarState();
@@ -27,6 +29,8 @@ class _CustomTabBarState extends State<CustomTabBar> {
   int selectedIndex=0;
 
 
+
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -34,9 +38,12 @@ class _CustomTabBarState extends State<CustomTabBar> {
       child: TabBar(
         indicatorColor: Colors.transparent,
         onTap: (currentIndex){
+
           setState(() {
             selectedIndex=currentIndex;
           });
+          widget.onCategoryItemSelected?.call(widget.categories[selectedIndex]);
+
         },
 
         isScrollable: true,

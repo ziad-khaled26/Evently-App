@@ -1,3 +1,4 @@
+import 'package:evently_app/core/extension/date_time_ex.dart';
 import 'package:evently_app/core/resources/assets_manager.dart';
 import 'package:evently_app/core/resources/colors_manager.dart';
 import 'package:evently_app/models/event_model.dart';
@@ -47,7 +48,7 @@ class _EventItemState extends State<EventItem> {
               child: Column(
                 children: [
                   Text(
-                      "21",
+                      widget.event.dateTime.getDay,
                     style: GoogleFonts.inter(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
@@ -55,7 +56,7 @@ class _EventItemState extends State<EventItem> {
                     ),
                   ),
                   Text(
-                      "Nov",
+                      widget.event.dateTime.getMonthName,
                     style: GoogleFonts.inter(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,

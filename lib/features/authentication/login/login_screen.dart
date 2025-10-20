@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:evently_app/core/resources/assets_manager.dart';
 import 'package:evently_app/core/resources/colors_manager.dart';
 import 'package:evently_app/core/resources/constants/constant_manager.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../core/routes_manager.dart';
 import '../../../models/user_model.dart';
@@ -49,7 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     var appLocalizations = AppLocalizations.of(context);
 
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -72,7 +73,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     controller: emailController,
                     validator: (input) {
-                      if (input == null || input.trim().isEmpty) {
+                      if (input == null || input
+                          .trim()
+                          .isEmpty) {
                         return "Email is required";
                       }
                       if (!ValidationUtils.isValidEmail(input)) {
@@ -99,7 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.visiblePassword,
                     controller: passwordController,
                     validator: (input) {
-                      if (input == null || input.trim().isEmpty) {
+                      if (input == null || input
+                          .trim()
+                          .isEmpty) {
                         return "password is required";
                       }
                       if (input.length < 6) {
@@ -125,7 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text(
                         appLocalizations.dont_have_account,
-                        style: Theme.of(context).textTheme.titleSmall,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleSmall,
                       ),
                       CustomTextButton(
                         text: appLocalizations.create_account,
@@ -176,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       side: BorderSide(color: ColorsManager.blue),
                     ),
-                    onPressed: () {},
+                    onPressed: _loginWithGoogle,
 
                     child: Row(
                       spacing: 10.w,
@@ -208,17 +216,44 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       UIUtils.showLoadingDialog(context);
-      UserCredential credential=await FirebaseService.login(emailController.text, passwordController.text);
-       UserModel.currentUser=await FirebaseService.getUserFromFirestore(credential.user!.uid);
+      UserCredential credential = await FirebaseService.login(
+        emailController.text,
+        passwordController.text,
+      );
+      UserModel.currentUser = await FirebaseService.getUserFromFirestore(
+        credential.user!.uid,
+      );
 
       UIUtils.hideLoadingDialog(context);
       Navigator.pushReplacementNamed(context, RoutesManager.mainLayout);
     } on FirebaseAuthException catch (exception) {
       UIUtils.hideLoadingDialog(context);
-      UIUtils.showMessage(context, FirebaseConstants.invalidEmailOrPasswordMessage);
-    }catch(e){
+      UIUtils.showMessage(
+        context,
+        FirebaseConstants.invalidEmailOrPasswordMessage,
+      );
+    } catch (e) {
       UIUtils.hideLoadingDialog(context);
       UIUtils.showMessage(context, FirebaseConstants.failedToLoginMessage);
     }
+  }
+
+  void _loginWithGoogle() async {
+    await GoogleSignIn.instance.initialize(
+      clientId:
+      "997411753839-h0spa1ue5rhgei775j3m6j21lqstvav3.apps.googleusercontent.com",
+      serverClientId:
+      "997411753839-n5oh9349t6dre56hrgoinp8jq95i1nt8.apps.googleusercontent.com",
+    );
+
+    GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
+    GoogleSignInAuthentication googleAuth = googleUser.authentication;
+    var credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+    UserCredential userCredential = await FirebaseAuth.instance
+        .signInWithCredential(credential);
+    await FirebaseService.addUserToFirestore(
+        UserModel(id: userCredential.user!.uid, name: userCredential.user!.displayName!, email: userCredential.user!.email!));
+    UserModel.currentUser=await FirebaseService.getUserFromFirestore(userCredential.user!.uid);
+    Navigator.pushReplacementNamed(context, RoutesManager.mainLayout);
   }
 }
