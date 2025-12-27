@@ -108,6 +108,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get choose_time => 'Choose Time';
 
   @override
+  String get location => 'Location';
+
+  @override
+  String get choose_event_location => 'Choose Event Location';
+
+  @override
+  String get tap_on_location_to_select => 'Tap on Location To Select';
+
+  @override
   String get add_event => 'Add Event';
 
   @override

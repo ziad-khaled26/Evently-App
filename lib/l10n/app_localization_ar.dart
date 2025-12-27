@@ -108,6 +108,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get choose_time => 'اختر الوقت';
 
   @override
+  String get location => 'الموقع';
+
+  @override
+  String get choose_event_location => 'اختر موقع الفعالية';
+
+  @override
+  String get tap_on_location_to_select => 'اضغط على الموقع للتحديد';
+
+  @override
   String get add_event => 'إضافة فعالية';
 
   @override

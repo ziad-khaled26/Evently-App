@@ -296,6 +296,24 @@ abstract class AppLocalizations {
   /// **'Choose Time'**
   String get choose_time;
 
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// No description provided for @choose_event_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Event Location'**
+  String get choose_event_location;
+
+  /// No description provided for @tap_on_location_to_select.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap on Location To Select'**
+  String get tap_on_location_to_select;
+
   /// No description provided for @add_event.
   ///
   /// In en, this message translates to:

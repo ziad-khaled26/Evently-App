@@ -24,6 +24,9 @@ class ThemeManager {
 
     dividerColor: ColorsManager.white,
 
+    //for gps floating action button
+    cardColor: ColorsManager.white,
+
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.transparent,
       type: BottomNavigationBarType.fixed,
@@ -163,6 +166,8 @@ class ThemeManager {
     canvasColor: ColorsManager.ofWhite,
 
     dividerColor: ColorsManager.darkBlue,
+    //for gps floating action button
+    cardColor: ColorsManager.darkBlue,
 
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.transparent,

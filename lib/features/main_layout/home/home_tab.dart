@@ -159,7 +159,7 @@ class _HomeTabState extends State<HomeTab> {
               }
               List<EventModel> events = snapShot.data ?? [];
               return Expanded(child: ListView.separated(
-                  itemBuilder: (context,index)=>EventItem(event: events[index]),
+                  itemBuilder: (context,index)=>EventItem(event: events[index],isFav: UserModel.currentUser!.favouriteEventsIds.contains(events[index].id),),
                   separatorBuilder: (context,index)=>SizedBox(height: 16.h,),
                   itemCount: events.length));
             }

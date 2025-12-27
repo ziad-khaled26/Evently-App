@@ -1,12 +1,16 @@
+import 'dart:developer';
+
 import 'package:evently_app/core/resources/colors_manager.dart';
 import 'package:evently_app/core/routes_manager.dart';
 import 'package:evently_app/features/main_layout/favorite/favorite_tab.dart';
 import 'package:evently_app/features/main_layout/home/home_tab.dart';
 import 'package:evently_app/features/main_layout/map/map_tab.dart';
+import 'package:evently_app/features/main_layout/map/map_tab_provider.dart';
 import 'package:evently_app/features/main_layout/profile/profile_tab.dart';
 import 'package:evently_app/l10n/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -16,14 +20,17 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int selectedIndexTab = 0;
-  List<Widget> tabs = [HomeTab(), MapTab(), FavoriteTab(), ProfileTab()];
+  late MapTabProvider provider=context.read<MapTabProvider>();
 
+  int selectedIndexTab = 0;
+  List<Widget> tabs = [
+    HomeTab(),
+    MapTab(),
+    FavoriteTab(),
+    ProfileTab(),
+  ];
 
   late AppLocalizations? appLocalizations;
-
-
-
 
   @override
   void initState() {
@@ -32,23 +39,23 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
-     appLocalizations=AppLocalizations.of(context);
+    appLocalizations = AppLocalizations.of(context);
+    bool keyboardIsOpend = MediaQuery.of(context).viewInsets.bottom != 0.0;
 
     return Scaffold(
       extendBody: true,
       body: tabs[selectedIndexTab],
       bottomNavigationBar: _buildBottomNavBar(context),
-      floatingActionButton: _buildFab(),
+      floatingActionButton: keyboardIsOpend ? null : _buildFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
-  Widget _buildBottomNavBar(BuildContext context ){
-
+  Widget _buildBottomNavBar(BuildContext context) {
     return BottomAppBar(
       notchMargin: 6,
       child: BottomNavigationBar(
-        onTap:_onTap,
+        onTap: _onTap,
         currentIndex: selectedIndexTab,
 
         items: [
@@ -85,17 +92,22 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
-  void _onTap(int newIndex){
+  void _onTap(int newIndex) {
+
     setState(() {
-      selectedIndexTab=newIndex;
+      selectedIndexTab = newIndex;
     });
   }
 
-  Widget _buildFab(){
+  Widget _buildFab() {
     return FloatingActionButton(
       splashColor: Colors.amber,
-      onPressed: () {
-        Navigator.pushNamed(context, RoutesManager.createEvent);
+      onPressed: () async{
+        await provider.locationStream?.cancel();
+        await Navigator.pushNamed(context, RoutesManager.createEvent);
+        if(provider.locationStream!=null){
+          provider.getUserLocation();
+        }
       },
       child: Icon(Icons.add),
     );

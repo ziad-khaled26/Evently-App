@@ -5,6 +5,7 @@ import '../../models/category_model.dart';
 import '../resources/colors_manager.dart';
 
 class CustomTabBar extends StatefulWidget {
+
   const CustomTabBar({
     super.key,
     required this.categories,
@@ -33,6 +34,7 @@ class _CustomTabBarState extends State<CustomTabBar> {
 
   @override
   Widget build(BuildContext context) {
+
     return DefaultTabController(
       length: widget.categories.length,
       child: TabBar(

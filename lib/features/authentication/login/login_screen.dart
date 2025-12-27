@@ -251,9 +251,19 @@ class _LoginScreenState extends State<LoginScreen> {
     var credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
     UserCredential userCredential = await FirebaseAuth.instance
         .signInWithCredential(credential);
-    await FirebaseService.addUserToFirestore(
-        UserModel(id: userCredential.user!.uid, name: userCredential.user!.displayName!, email: userCredential.user!.email!));
-    UserModel.currentUser=await FirebaseService.getUserFromFirestore(userCredential.user!.uid);
+    CollectionReference<UserModel> usersCollection=FirebaseService.getUsersCollection;
+    QuerySnapshot<UserModel> snapshot=await usersCollection.get();
+    List<UserModel> users=snapshot.docs.map((docSnapshot)=>docSnapshot.data()).toList();
+    if(users.any((user)=>user.id==userCredential.user?.uid)){
+      UserModel.currentUser=await FirebaseService.getUserFromFirestore(userCredential.user!.uid);
+    }
+    else{
+      await FirebaseService.addUserToFirestore(
+          UserModel(id: userCredential.user!.uid, name: userCredential.user!.displayName!, email: userCredential.user!.email!,favouriteEventsIds: []));
+      UserModel.currentUser=await FirebaseService.getUserFromFirestore(userCredential.user!.uid);
+
+
+    }
     Navigator.pushReplacementNamed(context, RoutesManager.mainLayout);
   }
 }

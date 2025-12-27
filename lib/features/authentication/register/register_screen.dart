@@ -201,6 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           id: credential.user!.uid,
           name: nameController.text,
           email: emailController.text,
+          favouriteEventsIds: []
         ),
       );
 

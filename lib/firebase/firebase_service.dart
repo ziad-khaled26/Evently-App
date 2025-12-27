@@ -70,6 +70,7 @@ class FirebaseService {
 
   static Future<List<EventModel>> getEventsFromFireStore(BuildContext context,
       CategoryModel selectedCategory) async {
+
     CollectionReference<EventModel> eventsCollection = getEventsCollection(
         context);
     QuerySnapshot<EventModel> eventsSnapshot = await eventsCollection
@@ -95,5 +96,33 @@ class FirebaseService {
     //snapShots=[snapShot,snapShot,....]
     Stream<List<EventModel>> eventsStream=await snapShots.map((snapshot) => snapshot.docs.map((queryDocumentSnapshot) =>queryDocumentSnapshot.data()).toList());
     yield* eventsStream;
+
+
   }
+  static Future<void> addFavouriteEventsIdsToCurrentUser(EventModel event)async{
+    UserModel currentUser=UserModel.currentUser!;
+    currentUser.favouriteEventsIds.add(event.id);
+    DocumentReference<UserModel> userDoc=getUsersCollection.doc(currentUser.id);
+    await userDoc.set(currentUser);
+
+  }
+
+  static Future<List<EventModel>>getFavouriteEvents(BuildContext context)async{
+    CollectionReference<EventModel> eventsCollection=getEventsCollection(context);
+    QuerySnapshot<EventModel> snapshot=await eventsCollection.get();
+    List<EventModel> allEvents=snapshot.docs.map((queryDocumentSnapshot)=>queryDocumentSnapshot.data()).toList();
+     List<EventModel> favouriteEvents=allEvents.where((event)=>UserModel.currentUser!.favouriteEventsIds.contains(event.id)).toList();
+     return favouriteEvents;
+
+
+  }
+
+  static Future<void>removeEventFromFavourite(EventModel event){
+    UserModel currentUser=UserModel.currentUser!;
+   currentUser.favouriteEventsIds.remove(event.id);
+   CollectionReference<UserModel> usersCollection=getUsersCollection;
+   DocumentReference<UserModel> userDocument=usersCollection.doc(currentUser.id);
+   return userDocument.set(currentUser);
+  }
+
 }

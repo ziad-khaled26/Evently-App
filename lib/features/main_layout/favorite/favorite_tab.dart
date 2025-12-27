@@ -1,5 +1,6 @@
 import 'package:evently_app/core/resources/colors_manager.dart';
 import 'package:evently_app/core/widgets/event_item.dart';
+import 'package:evently_app/firebase/firebase_service.dart';
 import 'package:evently_app/l10n/app_localization.dart';
 import 'package:evently_app/models/category_model.dart';
 import 'package:evently_app/models/event_model.dart';
@@ -10,10 +11,9 @@ import 'package:google_fonts/google_fonts.dart';
 class FavoriteTab extends StatelessWidget {
   const FavoriteTab({super.key});
 
-
   @override
   Widget build(BuildContext context) {
-    var appLocalizations=AppLocalizations.of(context);
+    var appLocalizations = AppLocalizations.of(context);
 
     return Container(
       child: SafeArea(
@@ -34,21 +34,28 @@ class FavoriteTab extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16.h),
-              Expanded(
-                child: ListView.separated(
-                  itemBuilder: (context, index) => EventItem(
-                    event: EventModel(
-                      category: CategoryModel.getCategoriesWithAll(context)[3],
-                      title: "title",
-                      description: "Meeting for Updating The Development Method ",
-                      dateTime: DateTime.now(),
-                      id: "1",
-                      ownerId: "1"
-                    ),
-                  ),
-                  itemCount: 10,
-                  separatorBuilder: (context,index)=>SizedBox(height: 16.h,),
-                ),
+              FutureBuilder(
+                future: FirebaseService.getFavouriteEvents(context),
+                builder: (context,snapshot){
+                  if(snapshot.connectionState==ConnectionState.waiting){
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if(snapshot.hasError){
+                    return Center(
+                      child: Text(snapshot.error.toString()),
+                    );
+                  }
+                  List<EventModel> favouriteEvents=snapshot.data??[];
+                  return Expanded(child: ListView.separated(
+                      itemBuilder: (context,index)=>
+                      EventItem(event: favouriteEvents[index], isFav: true),
+                      separatorBuilder: (context,index)=>SizedBox(height: 16.h,),
+                      itemCount: favouriteEvents.length
+                  )
+                  );
+                },
               ),
             ],
           ),
